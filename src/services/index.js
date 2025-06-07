@@ -1,0 +1,11 @@
+export { authService } from './auth.service.js';
+export { userService } from './user.service.js';
+export { videoService } from './video.service.js';
+export { commentService } from './comment.service.js';
+export { likeService } from './like.service.js';
+export { subscriptionService } from './subscription.service.js';
+export { playlistService } from './playlist.service.js';
+export { tweetService } from './tweet.service.js';
+export { dashboardService } from './dashboard.service.js';
+export { healthcheckService } from './healthcheck.service.js';
+export { default as api } from './api.js';
