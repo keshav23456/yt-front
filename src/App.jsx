@@ -221,8 +221,8 @@ function AppContent({ sidebarOpen, toggleSidebar, closeSidebar, isMobile }) {
             } />
             
             {/* Redirects */}
-            <Route path="/auth/login" element={<Navigate to="/login" replace />} />
-            <Route path="/auth/signup" element={<Navigate to="/signup" replace />} />
+            <Route path="/auth/login" element={<Navigate to="/login\" replace />} />
+            <Route path="/auth/signup" element={<Navigate to="/signup\" replace />} />
             
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
