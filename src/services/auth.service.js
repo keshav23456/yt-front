@@ -1,14 +1,18 @@
+// src/services/auth.service.js
 import { api } from './api.js';
 
 export const register = async (userData) => {
   try {
     const formData = new FormData();
+    
+    // Add all fields except files
     Object.keys(userData).forEach(key => {
       if (key !== 'avatar' && key !== 'coverImage') {
         formData.append(key, userData[key]);
       }
     });
     
+    // Add files if present
     if (userData.avatar) formData.append('avatar', userData.avatar);
     if (userData.coverImage) formData.append('coverImage', userData.coverImage);
 
@@ -18,7 +22,7 @@ export const register = async (userData) => {
 
     const { accessToken, refreshToken, user } = response.data.data;
     
-    // Store tokens and user data
+    // Store auth data
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('user', JSON.stringify(user));
@@ -35,7 +39,7 @@ export const login = async (credentials) => {
     const response = await api.post('/users/login', credentials);
     const { accessToken, refreshToken, user } = response.data.data;
     
-    // Store tokens and user data
+    // Store auth data
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('user', JSON.stringify(user));
@@ -111,7 +115,7 @@ export const changePassword = async (passwordData) => {
   }
 };
 
-// Helper function to get stored user data
+// Helper functions
 export const getStoredUser = () => {
   try {
     const userString = localStorage.getItem('user');
@@ -123,12 +127,10 @@ export const getStoredUser = () => {
   }
 };
 
-// Helper function to get stored token
 export const getStoredToken = () => {
   return localStorage.getItem('accessToken');
 };
 
-// Helper function to check if user is authenticated
 export const isAuthenticated = () => {
   const token = getStoredToken();
   const user = getStoredUser();
@@ -141,7 +143,7 @@ export const authService = {
   logout,
   refreshToken,
   getCurrentUser,
-  // changePassword,
+  changePassword,
   getStoredUser,
   getStoredToken,
   isAuthenticated

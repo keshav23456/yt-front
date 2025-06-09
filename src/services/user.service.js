@@ -1,146 +1,120 @@
+// src/services/user.service.js
+import { api } from './api.js';
 
-import api from './api';
-
-// Get current user
-export const getCurrentUser = () => {
-  return api.get('/users/current-user');
-};
-
-// Get user channel/profile
-export const getUserChannel = (username) => {
-  return api.get(`/users/c/${username}`);
-};
-
-// Get channel videos
-export const getChannelVideos = (userId, page = 1, limit = 10) => {
-  return api.get(`/users/channel/${userId}/videos`, {
-    params: { page, limit }
-  });
-};
-
-// Get watch history
-export const getWatchHistory = (page = 1, limit = 10) => {
-  return api.get('/users/history', {
-    params: { page, limit }
-  });
-};
-
-// Update user account details
-export const updateUserAccount = (data) => {
-  return api.patch('/users/update-account', data);
-};
-
-// Alternative name for the same function
-export const updateAccountDetails = (data) => {
-  return api.patch('/users/update-account', data);
-};
-
-// Update user avatar
-export const updateUserAvatar = (avatarFile) => {
-  const formData = new FormData();
-  formData.append('avatar', avatarFile);
-  return api.patch('/users/avatar', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-};
-
-// Alternative name for the same function
-export const updateAvatar = (avatarFile) => {
-  return updateUserAvatar(avatarFile);
-};
-
-// Update user cover image
-export const updateUserCoverImage = (coverImageFile) => {
-  const formData = new FormData();
-  formData.append('coverImage', coverImageFile);
-  return api.patch('/users/cover-image', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-};
-
-// Alternative name for the same function
-export const updateCoverImage = (coverImageFile) => {
-  return updateUserCoverImage(coverImageFile);
-};
-
-// Change password
-export const changePassword = (passwordData) => {
-  return api.post('/users/change-password', passwordData);
+// Get user channel/profile by username
+export const getUserChannel = async (username) => {
+  try {
+    const response = await api.get(`/users/c/${username}`);
+    return response.data;
+  } catch (error) {
+    console.error('Get user channel error:', error);
+    throw error;
+  }
 };
 
 // Get user profile by ID
-export const getUserProfile = (userId) => {
-  return api.get(`/users/${userId}`);
+export const getUserProfile = async (userId) => {
+  try {
+    const response = await api.get(`/users/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Get user profile error:', error);
+    throw error;
+  }
+};
+
+// Get channel videos
+export const getChannelVideos = async (userId, page = 1, limit = 10) => {
+  try {
+    const response = await api.get(`/users/channel/${userId}/videos`, {
+      params: { page, limit }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Get channel videos error:', error);
+    throw error;
+  }
+};
+
+// Get watch history
+export const getWatchHistory = async (page = 1, limit = 10) => {
+  try {
+    const response = await api.get('/users/history', {
+      params: { page, limit }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Get watch history error:', error);
+    throw error;
+  }
+};
+
+// Update user account details
+export const updateAccountDetails = async (data) => {
+  try {
+    const response = await api.patch('/users/update-account', data);
+    return response.data;
+  } catch (error) {
+    console.error('Update account details error:', error);
+    throw error;
+  }
+};
+
+// Update user avatar
+export const updateAvatar = async (avatarFile) => {
+  try {
+    const formData = new FormData();
+    formData.append('avatar', avatarFile);
+    
+    const response = await api.patch('/users/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Update avatar error:', error);
+    throw error;
+  }
+};
+
+// Update user cover image
+export const updateCoverImage = async (coverImageFile) => {
+  try {
+    const formData = new FormData();
+    formData.append('coverImage', coverImageFile);
+    
+    const response = await api.patch('/users/cover-image', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Update cover image error:', error);
+    throw error;
+  }
 };
 
 // Search users
-export const searchUsers = (query, page = 1, limit = 10) => {
-  return api.get('/users/search', {
-    params: { query, page, limit }
-  });
+export const searchUsers = async (query, page = 1, limit = 10) => {
+  try {
+    const response = await api.get('/users/search', {
+      params: { query, page, limit }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Search users error:', error);
+    throw error;
+  }
 };
 
-// Default export object
-const userService = {
-  // getCurrentUser,
+// Service object for easy import
+export const userService = {
   getUserChannel,
+  getUserProfile,
   getChannelVideos,
   getWatchHistory,
-  updateUserAccount,
   updateAccountDetails,
-  updateUserAvatar,
   updateAvatar,
-  updateUserCoverImage,
   updateCoverImage,
-  changePassword,
-  getUserProfile,
   searchUsers
 };
 
 export default userService;
-
-
-// import { api } from './api.js';
-
-// export const updateAccount = async (userData) => {
-//   const response = await api.patch('/users/update-account', userData);
-//   return response.data;
-// };
-
-// export const updateAvatar = async (avatarFile) => {
-//   const formData = new FormData();
-//   formData.append('avatar', avatarFile);
-//   return api.patch('/users/avatar', formData, {
-//     headers: { 'Content-Type': 'multipart/form-data' }
-//   }).then(res => res.data);
-// };
-
-// export const updateCoverImage = async (coverImageFile) => {
-//   const formData = new FormData();
-//   formData.append('coverImage', coverImageFile);
-//   return api.patch('/users/cover-image', formData, {
-//     headers: { 'Content-Type': 'multipart/form-data' }
-//   }).then(res => res.data);
-// };
-
-// export const getChannelProfile = async (username) => {
-//   const response = await api.get(`/users/c/${username}`);
-//   return response.data;
-// };
-
-// export const getWatchHistory = async () => {
-//   const response = await api.get('/users/history');
-//   return response.data;
-// };
-
-// export const userService = {
-//   updateAccount,
-//   updateAvatar,
-//   updateCoverImage,
-//   getChannelProfile,
-//   getWatchHistory
-// };

@@ -13,6 +13,7 @@ const api = axios.create({
   },
 });
 
+// Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
@@ -24,6 +25,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Response interceptor for token refresh and error handling
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -39,15 +41,21 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
+        // Clear all auth data on refresh failure
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }
 
-    const errorMessage = error.response?.data?.message || 'Something went wrong';
-    toast.error(errorMessage);
+    // Show error toast for non-401 errors
+    if (error.response?.status !== 401) {
+      const errorMessage = error.response?.data?.message || 'Something went wrong';
+      toast.error(errorMessage);
+    }
+    
     return Promise.reject(error);
   }
 );
