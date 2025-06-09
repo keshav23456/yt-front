@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { playlistService } from '../../services';
+
 import { LOADING_STATES } from '../../utils/constants';
+import { createPlaylist,getPlaylistById,updatePlaylist,deletePlaylist,addVideoToPlaylist,removeVideoFromPlaylist,getUserPlaylists } from '../../services';
 
 const initialState = {
   playlists: [],
@@ -16,7 +17,7 @@ export const createPlaylist = createAsyncThunk(
   'playlist/createPlaylist',
   async (playlistData, { rejectWithValue }) => {
     try {
-      const response = await playlistService.createPlaylist(playlistData);
+      const response = await createPlaylist(playlistData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create playlist');
@@ -28,7 +29,7 @@ export const getPlaylistById = createAsyncThunk(
   'playlist/getPlaylistById',
   async (playlistId, { rejectWithValue }) => {
     try {
-      const response = await playlistService.getPlaylistById(playlistId);
+      const response = await getPlaylistById(playlistId);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch playlist');
@@ -40,7 +41,7 @@ export const updatePlaylist = createAsyncThunk(
   'playlist/updatePlaylist',
   async ({ playlistId, playlistData }, { rejectWithValue }) => {
     try {
-      const response = await playlistService.updatePlaylist(playlistId, playlistData);
+      const response = await updatePlaylist(playlistId, playlistData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to update playlist');
@@ -52,7 +53,7 @@ export const deletePlaylist = createAsyncThunk(
   'playlist/deletePlaylist',
   async (playlistId, { rejectWithValue }) => {
     try {
-      await playlistService.deletePlaylist(playlistId);
+      await deletePlaylist(playlistId);
       return playlistId;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to delete playlist');
@@ -64,7 +65,7 @@ export const addVideoToPlaylist = createAsyncThunk(
   'playlist/addVideoToPlaylist',
   async ({ videoId, playlistId }, { rejectWithValue }) => {
     try {
-      const response = await playlistService.addVideoToPlaylist(videoId, playlistId);
+      const response = await addVideoToPlaylist(videoId, playlistId);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to add video to playlist');
@@ -76,7 +77,7 @@ export const removeVideoFromPlaylist = createAsyncThunk(
   'playlist/removeVideoFromPlaylist',
   async ({ videoId, playlistId }, { rejectWithValue }) => {
     try {
-      const response = await playlistService.removeVideoFromPlaylist(videoId, playlistId);
+      const response = await removeVideoFromPlaylist(videoId, playlistId);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to remove video from playlist');
@@ -88,7 +89,7 @@ export const getUserPlaylists = createAsyncThunk(
   'playlist/getUserPlaylists',
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await playlistService.getUserPlaylists(userId);
+      const response = await getUserPlaylists(userId);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch user playlists');

@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '../../store/slices/authSlice';
-import { 
-  updateAccountDetails, 
-  updateAvatar, 
-  updateCoverImage, 
-  changePassword 
-} from '../../services/user.service';
+
 import Loading from '../../components/common/Loading';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import { updateAccountDetails,updateAvatar,updateCoverImage,changePassword } from '../../services';
+
 
 const Settings = () => {
   const dispatch = useDispatch();

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { videoService } from '../services';
+import { videoService } from '../services/index';
 import { useApi } from './useApi';
 
 // Custom hook for video-related operations

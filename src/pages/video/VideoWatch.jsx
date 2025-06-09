@@ -3,9 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { VideoPlayer } from '../../components/video';
 import { CommentSection, LikeButton, SubscribeButton } from '../../components/social';
 import { Loading } from '../../components/common';
-import { videoService, userService } from '../../services';
-import { useAuth } from '../../hooks';
 
+import { getVideoById } from '../../services';
+import { useAuth } from '../../hooks';
 const VideoWatch = () => {
   const { videoId } = useParams();
   const [video, setVideo] = useState(null);
@@ -24,7 +24,7 @@ const VideoWatch = () => {
   const fetchVideo = async () => {
     try {
       setLoading(true);
-      const response = await videoService.getVideoById(videoId);
+      const response = await getVideoById(videoId);
       if (response.success) {
         setVideo(response.data);
         if (response.data.owner) {

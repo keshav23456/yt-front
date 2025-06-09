@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { VideoGrid, Loading } from '../components/common';
-import { videoService } from '../services';
+import { getAllVideos } from '../services';
 import { useAuth } from '../hooks';
 
 const Home = () => {
@@ -17,7 +17,7 @@ const Home = () => {
   const fetchVideos = async () => {
     try {
       setLoading(true);
-      const response = await videoService.getAllVideos();
+      const response = await getAllVideos();
       if (response.success) {
         setVideos(response.data.videos || response.data);
       }

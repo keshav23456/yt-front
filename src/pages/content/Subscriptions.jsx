@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Loading from '../../components/common/Loading';
-import { getSubscribedChannels } from '../../services/subscription.service';
-import { getUserVideos } from '../../services/video.service';
+
+import { getSubscribedChannels } from '../../services';
+import { getChannelVideos } from '../../services';
 
 const Subscriptions = () => {
   const { user } = useSelector(state => state.auth);

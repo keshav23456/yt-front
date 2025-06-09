@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import Loading from '../../components/common/Loading';
 import TweetCard from '../../components/social/TweetCard';
 import TweetForm from '../../components/social/TweetForm';
-import { getUserTweets } from '../../services/tweet.service';
+import { getUserTweets } from '../../services';
 
 const Tweets = () => {
   const { user } = useSelector(state => state.auth);

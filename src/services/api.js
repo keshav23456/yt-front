@@ -1,3 +1,4 @@
+// src/services/api.js
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
@@ -51,4 +52,5 @@ api.interceptors.response.use(
   }
 );
 
+export { api };
 export default api;

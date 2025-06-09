@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button, Input, Loading } from '../../components/common';
-import { updateUserAccount, updateUserAvatar, updateUserCoverImage } from '../../services/user.service';
 import { updateUser } from '../../store/slices/authSlice';
 import { validateEmail, validateName } from '../../utils/validators';
 import { showToast } from '../../utils/helpers';
+import { updateUserAccount,updateUserAvatar,updateUserCoverImage } from '../../services';
+
 
 const Profile = () => {
   const navigate = useNavigate();

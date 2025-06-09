@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import VideoGrid from '../../components/video/VideoGrid';
 import Loading from '../../components/common/Loading';
-import { getWatchHistory } from '../../services/user.service';
+
+import { getWatchHistory } from '../../services';
 
 const History = () => {
   const { user } = useSelector(state => state.auth);

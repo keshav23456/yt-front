@@ -1,13 +1,16 @@
-import api from './api.js';
+import { api } from './api.js';
+
+export const getChannelStats = async () => {
+  const response = await api.get('/dashboard/stats');
+  return response.data;
+};
+
+export const getChannelVideos = async () => {
+  const response = await api.get('/dashboard/videos');
+  return response.data;
+};
 
 export const dashboardService = {
-  getChannelStats: async () => {
-    const response = await api.get('/dashboard/stats');
-    return response.data;
-  },
-
-  getChannelVideos: async () => {
-    const response = await api.get('/dashboard/videos');
-    return response.data;
-  }
+  getChannelStats,
+  // getChannelVideos
 };

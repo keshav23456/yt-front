@@ -4,8 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { VideoGrid, VideoCard } from '../../components/video';
 import { SubscribeButton } from '../../components/social';
 import { Button, Loading } from '../../components/common';
-import { getUserChannel, getChannelVideos } from '../../services/user.service';
-import { getChannelStats } from '../../services/dashboard.service';
+import { getUserChannel,getChannelVideos } from '../../services';
+import { getChannelStats } from '../../services';
+
+
 import { formatNumber, formatDate } from '../../utils/formatters';
 
 const Channel = () => {
@@ -38,6 +40,7 @@ const Channel = () => {
         // Load channel videos
         const videosResponse = await getChannelVideos(channelResponse.data._id);
         if (videosResponse.success) {
+         
           setVideos(videosResponse.data.videos || []);
         }
 
