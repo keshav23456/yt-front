@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button } from '../common';
 import { toggleVideoLike, toggleCommentLike, toggleTweetLike } from '../../store/slices/likeSlice';
-import './LikeButton.css';
+// import './LikeButton.css';
 
 const LikeButton = ({ 
   targetId, 

@@ -6,7 +6,7 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [react()],
   css: {
-    postcss: false, // Temporarily disable PostCSS
+    postcss: './postcss.config.js' // Explicit path if needed
   },
   
   // ESBuild configuration for JSX handling

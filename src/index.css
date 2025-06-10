@@ -1,8 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
-
-@tailwind base;
+/* Replace the Google Fonts import with this modern approach */
+@import '@fontsource/inter';
+/* @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities; */
 
 /* Global styles */
 * {

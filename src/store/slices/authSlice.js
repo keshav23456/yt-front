@@ -1,13 +1,12 @@
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authService } from '../../services';
+import authService from '../../services/authService';
 
 // Async thunks
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await authService.login(credentials);
+      const response = await authService.loginService(credentials);
       return response;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -19,7 +18,7 @@ export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await authService.register(userData);
+      const response = await authService.registerService(userData);
       return response;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -31,7 +30,7 @@ export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
   async (_, { rejectWithValue }) => {
     try {
-      await authService.logout();
+      await authService.logoutService();
       return {};
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -43,7 +42,7 @@ export const getCurrentUser = createAsyncThunk(
   'auth/getCurrentUser',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await authService.getCurrentUser();
+      const response = await authService.getCurrentUserService();
       return response;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -55,7 +54,7 @@ export const updateUser = createAsyncThunk(
   'auth/updateUser',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await authService.updateAccount(userData);
+      const response = await authService.updateAccountService(userData);
       return response;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -67,7 +66,7 @@ export const changePassword = createAsyncThunk(
   'auth/changePassword',
   async (passwordData, { rejectWithValue }) => {
     try {
-      const response = await authService.changePassword(passwordData);
+      const response = await authService.changePasswordService(passwordData);
       return response;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);

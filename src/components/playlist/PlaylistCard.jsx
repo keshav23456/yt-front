@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { formatDate } from '../../utils/formatters';
-import './PlaylistCard.css';
+// import './PlaylistCard.css';
 
 const PlaylistCard = ({ playlist, onEdit, onDelete, showActions = false }) => {
   const { _id, name, description, videos, createdAt, owner } = playlist;
