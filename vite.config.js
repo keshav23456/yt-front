@@ -5,6 +5,9 @@ import { resolve } from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  css: {
+    postcss: false, // Temporarily disable PostCSS
+  },
   
   // ESBuild configuration for JSX handling
   esbuild: {
