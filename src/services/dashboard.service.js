@@ -10,7 +10,7 @@ export const getChannelVideos = async () => {
   return response.data;
 };
 
-export const dashboardService = {
+export const dashboardService=[
   getChannelStats,
-  // getChannelVideos
-};
+  getChannelVideos
+]

@@ -5,6 +5,6 @@ export const healthcheck = async () => {
   return response.data;
 };
 
-export const healthcheckService = {
+export const healthcheckService={
   healthcheck
-};
+}

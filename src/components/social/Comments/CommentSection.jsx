@@ -5,7 +5,7 @@ import CommentForm from './CommentForm';
 import CommentItem from './CommentItem';
 import { Loading } from '../../common';
 import { fetchComments } from '../../../store/slices/commentSlice';
-import './CommentSection.css';
+// import './CommentSection.css';
 
 const CommentSection = ({ videoId }) => {
   const dispatch = useDispatch();

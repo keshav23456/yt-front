@@ -154,3 +154,5 @@ const VideoWatch = () => {
     </div>
   );
 };
+
+export default VideoWatch;

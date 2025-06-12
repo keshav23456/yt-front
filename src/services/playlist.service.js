@@ -35,12 +35,12 @@ export const getUserPlaylists = async (userId) => {
   return response;
 };
 
-export const playlistService = {
-  createPlaylist,
-  getPlaylistById,
-  updatePlaylist,
-  deletePlaylist,
-  addVideoToPlaylist,
-  removeVideoFromPlaylist,
-  getUserPlaylists
-};
+export const playlistService={
+    createPlaylist,
+    getPlaylistById,
+    updatePlaylist,
+    deletePlaylist,
+    addVideoToPlaylist,
+    removeVideoFromPlaylist,
+    getUserPlaylists
+}

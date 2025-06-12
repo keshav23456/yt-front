@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import VideoGrid from '../../components/video/VideoGrid';
 import Loading from '../../components/common/Loading';
 
-import { getWatchHistory } from '../../services';
+import { getWatchHistoryService } from '../../services';
 
 const History = () => {
   const { user } = useSelector(state => state.auth);
@@ -19,7 +19,7 @@ const History = () => {
   const fetchHistory = async () => {
     try {
       setLoading(true);
-      const response = await getWatchHistory();
+      const response = await getWatchHistoryService();
       if (response.success) {
         let filteredVideos = response.data;
         

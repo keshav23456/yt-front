@@ -16,7 +16,7 @@ export const updateProfile = createAsyncThunk(
   'user/updateProfile',
   async (profileData, { rejectWithValue }) => {
     try {
-      const response = await userService.updateProfile(profileData);
+      const response = await userService.updateProfileService(profileData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Profile update failed');
@@ -28,7 +28,7 @@ export const updateAvatar = createAsyncThunk(
   'user/updateAvatar',
   async (avatarFile, { rejectWithValue }) => {
     try {
-      const response = await userService.updateAvatar(avatarFile);
+      const response = await userService.updateAvatarService(avatarFile);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Avatar update failed');
@@ -40,7 +40,7 @@ export const updateCoverImage = createAsyncThunk(
   'user/updateCoverImage',
   async (coverImageFile, { rejectWithValue }) => {
     try {
-      const response = await userService.updateCoverImage(coverImageFile);
+      const response = await userService.updateCoverImageService(coverImageFile);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Cover image update failed');
@@ -52,7 +52,7 @@ export const getChannelProfile = createAsyncThunk(
   'user/getChannelProfile',
   async (username, { rejectWithValue }) => {
     try {
-      const response = await userService.getChannelProfile(username);
+      const response = await userService.getChannelProfileService(username);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to get channel profile');
@@ -64,7 +64,7 @@ export const getWatchHistory = createAsyncThunk(
   'user/getWatchHistory',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await userService.getWatchHistory();
+      const response = await userService.getWatchHistoryService();
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to get watch history');

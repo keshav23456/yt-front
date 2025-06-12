@@ -42,11 +42,11 @@
     z-index: 1000;
     transform: translateX(-100%);
   }
-  
+
   .layout__sidebar--open {
     transform: translateX(0);
   }
-  
+
   .layout__main {
     width: 100%;
   }
@@ -84,4 +84,5 @@
 
 .auth-layout__title {
   font-size: 24px;
-  font-weight:
+  font-weight: bold; /* Added a value for font-weight */
+}

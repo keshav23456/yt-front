@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button } from '../common';
 import PlaylistModal from './PlaylistModal';
-import { createPlaylist } from '../../store/slices/playlistSlice';
+// import { createPlaylist } from '../../store/slices/playlistSlice';
 
 const CreatePlaylist = ({ className = '' }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);

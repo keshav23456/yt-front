@@ -20,9 +20,9 @@ export const getLikedVideos = async () => {
   return response.data;
 };
 
-export const likeService = {
-  toggleVideoLike,
-  toggleCommentLike,
-  toggleTweetLike,
-  getLikedVideos
-};
+export const likeService={
+    toggleVideoLike,
+    toggleCommentLike,
+    toggleTweetLike,
+    getLikedVideos
+}

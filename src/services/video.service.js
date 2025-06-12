@@ -49,11 +49,12 @@ export const togglePublishStatus = async (videoId) => {
   return response.data;
 };
 
-export const videoService = {
-  getAllVideos,
-  uploadVideo,
-  getVideoById,
-  updateVideo,
-  deleteVideo,
-  togglePublishStatus
-};
+export  const videoService={
+    getAllVideos,
+    uploadVideo,
+    getVideoById,
+    updateVideo,
+    deleteVideo,
+    togglePublishStatus
+}
+;

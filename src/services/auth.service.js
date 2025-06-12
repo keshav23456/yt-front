@@ -1,7 +1,7 @@
 // src/services/auth.service.js
 import { api } from './api.js';
 
-export const register = async (userData) => {
+export const registerService = async (userData) => {
   try {
     const formData = new FormData();
     
@@ -34,7 +34,7 @@ export const register = async (userData) => {
   }
 };
 
-export const login = async (credentials) => {
+export const loginService = async (credentials) => {
   try {
     const response = await api.post('/users/login', credentials);
     const { accessToken, refreshToken, user } = response.data.data;
@@ -51,7 +51,7 @@ export const login = async (credentials) => {
   }
 };
 
-export const logout = async () => {
+export const logoutService = async () => {
   try {
     await api.post('/users/logout');
   } catch (error) {
@@ -65,7 +65,7 @@ export const logout = async () => {
   }
 };
 
-export const refreshToken = async () => {
+export const refreshTokenService = async () => {
   try {
     const response = await api.post('/users/refresh-token');
     const { accessToken, user } = response.data.data;
@@ -89,7 +89,7 @@ export const refreshToken = async () => {
   }
 };
 
-export const getCurrentUser = async () => {
+export const getCurrentUserService = async () => {
   try {
     const response = await api.get('/users/current-user');
     
@@ -105,7 +105,7 @@ export const getCurrentUser = async () => {
   }
 };
 
-export const changePassword = async (passwordData) => {
+export const changePasswordService = async (passwordData) => {
   try {
     const response = await api.post('/users/change-password', passwordData);
     return response.data;
@@ -115,8 +115,18 @@ export const changePassword = async (passwordData) => {
   }
 };
 
+export const updateAccountService = async (userData) => {
+  try {
+    const response = await api.patch('/users/update-account', userData);
+    return response.data;
+  } catch (error) {
+    console.error('Update account error:', error);
+    throw error;
+  }
+};
+
 // Helper functions
-export const getStoredUser = () => {
+export const getStoredUserService = () => {
   try {
     const userString = localStorage.getItem('user');
     return userString ? JSON.parse(userString) : null;
@@ -127,24 +137,27 @@ export const getStoredUser = () => {
   }
 };
 
-export const getStoredToken = () => {
+export const getStoredTokenService = () => {
   return localStorage.getItem('accessToken');
 };
 
-export const isAuthenticated = () => {
-  const token = getStoredToken();
-  const user = getStoredUser();
+export const isAuthenticatedService = () => {
+  const token = getStoredTokenService();
+  const user = getStoredUserService();
   return !!(token && user);
 };
 
-export const authService = {
-  register,
-  login,
-  logout,
-  refreshToken,
-  getCurrentUser,
-  changePassword,
-  getStoredUser,
-  getStoredToken,
-  isAuthenticated
+// Default export object
+ export const  authService = {
+  registerService,
+  loginService,
+  logoutService,
+  refreshTokenService,
+  getCurrentUserService,
+  changePasswordService,
+  updateAccountService,
+  getStoredUserService,
+  getStoredTokenService,
+  isAuthenticatedService
 };
+

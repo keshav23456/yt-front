@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Modal, Button } from '../common';
 import CreatePlaylist from './CreatePlaylist';
-import { fetchUserPlaylists, addVideoToPlaylist, removeVideoFromPlaylist } from '../../store/slices/playlistSlice';
+import { getUserPlaylists, addVideoToPlaylist, removeVideoFromPlaylist } from '../../store/slices/playlistSlice';
 
 const AddToPlaylist = ({ videoId, isOpen, onClose }) => {
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ const AddToPlaylist = ({ videoId, isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen && user) {
-      dispatch(fetchUserPlaylists(user._id));
+      dispatch(getUserPlaylists(user._id));
     }
   }, [isOpen, user, dispatch]);
 
