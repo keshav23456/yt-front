@@ -5,7 +5,7 @@ import { updateUser } from '../../store/slices/authSlice';
 import Loading from '../../components/common/Loading';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
-import { updateAccountDetails,updateAvatar,updateCoverImage,changePassword } from '../../services';
+import { updateAccountDetailsService,updateAvatarService,updateCoverImageService,userChangePasswordService } from '../../services';
 
 
 const Settings = () => {
@@ -58,7 +58,7 @@ const Settings = () => {
     setLoading(true);
     
     try {
-      const response = await updateAccountDetails(profileForm);
+      const response = await updateAccountDetailsService(profileForm);
       if (response.success) {
         dispatch(updateUser(response.data));
         showMessage('success', 'Profile updated successfully!');
@@ -89,7 +89,7 @@ const Settings = () => {
     setLoading(true);
     
     try {
-      const response = await changePassword({
+      const response = await userChangePasswordService({
         oldPassword: passwordForm.oldPassword,
         newPassword: passwordForm.newPassword
       });
@@ -140,7 +140,7 @@ const Settings = () => {
     formData.append('avatar', avatarFile);
     
     try {
-      const response = await updateAvatar(formData);
+      const response = await updateAvatarService(formData);
       if (response.success) {
         dispatch(updateUser(response.data));
         setAvatarFile(null);
@@ -164,7 +164,7 @@ const Settings = () => {
     formData.append('coverImage', coverFile);
     
     try {
-      const response = await updateCoverImage(formData);
+      const response = await updateCoverImageService(formData);
       if (response.success) {
         dispatch(updateUser(response.data));
         setCoverFile(null);

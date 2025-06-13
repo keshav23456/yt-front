@@ -1,182 +1,310 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
 import { LOADING_STATES } from '../../utils/constants';
-import { createPlaylist,getPlaylistById,updatePlaylist,deletePlaylist,addVideoToPlaylist,removeVideoFromPlaylist,getUserPlaylists } from '../../services';
+import { playlistService } from '../../services';
 
 const initialState = {
   playlists: [],
   currentPlaylist: null,
   userPlaylists: [],
-  loading: LOADING_STATES.IDLE,
+  isLoading: LOADING_STATES.IDLE,
+  isCreating: LOADING_STATES.IDLE,
+  isUpdating: LOADING_STATES.IDLE,
   error: null,
-  creating: LOADING_STATES.IDLE
+  selectedPlaylistIds: [],
+  sortBy: 'createdAt',
+  sortOrder: 'desc'
+};
+
+// Utility function for error handling
+const handleAsyncError = (error) => {
+  const errorMessage = error.response?.data?.message || error.message || 'Operation failed';
+  console.error('Playlist operation error:', error);
+  return errorMessage;
+};
+
+// Utility function for localStorage operations
+const updatePlaylistCache = (userId, playlists) => {
+  if (userId) {
+    localStorage.setItem(`userPlaylists_${userId}`, JSON.stringify(playlists.slice(0, 50)));
+  }
 };
 
 // Async thunks
-// export const createPlaylist = createAsyncThunk(
-//   'playlist/createPlaylist',
-//   async (playlistData, { rejectWithValue }) => {
-//     try {
-//       const response = await createPlaylist(playlistData);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message || 'Failed to create playlist');
-//     }
-//   }
-// );
+export const createPlaylistAsync = createAsyncThunk(
+  'playlist/create',
+  async (playlistData, { rejectWithValue, getState }) => {
+    try {
+      const response = await playlistService.createPlaylist(playlistData);
+      const { auth } = getState();
+      
+      if (auth.user?.id) {
+        const cached = JSON.parse(localStorage.getItem(`userPlaylists_${auth.user.id}`) || '[]');
+        updatePlaylistCache(auth.user.id, [response.data.playlist, ...cached]);
+      }
+      
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(handleAsyncError(error));
+    }
+  }
+);
 
-// export const getPlaylistById = createAsyncThunk(
-//   'playlist/getPlaylistById',
-//   async (playlistId, { rejectWithValue }) => {
-//     try {
-//       const response = await getPlaylistById(playlistId);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message || 'Failed to fetch playlist');
-//     }
-//   }
-// );
+export const getPlaylistByIdAsync = createAsyncThunk(
+  'playlist/getById',
+  async (playlistId, { rejectWithValue }) => {
+    try {
+      const response = await playlistService.getPlaylistById(playlistId);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(handleAsyncError(error));
+    }
+  }
+);
 
-// export const updatePlaylist = createAsyncThunk(
-//   'playlist/updatePlaylist',
-//   async ({ playlistId, playlistData }, { rejectWithValue }) => {
-//     try {
-//       const response = await updatePlaylist(playlistId, playlistData);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message || 'Failed to update playlist');
-//     }
-//   }
-// );
+export const updatePlaylistAsync = createAsyncThunk(
+  'playlist/update',
+  async ({ playlistId, playlistData }, { rejectWithValue, getState }) => {
+    try {
+      const response = await playlistService.updatePlaylist(playlistId, playlistData);
+      const { auth } = getState();
+      
+      if (auth.user?.id) {
+        const cached = JSON.parse(localStorage.getItem(`userPlaylists_${auth.user.id}`) || '[]');
+        const updated = cached.map(p => p._id === playlistId ? { ...p, ...response.data.playlist } : p);
+        updatePlaylistCache(auth.user.id, updated);
+      }
+      
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(handleAsyncError(error));
+    }
+  }
+);
 
-// export const deletePlaylist = createAsyncThunk(
-//   'playlist/deletePlaylist',
-//   async (playlistId, { rejectWithValue }) => {
-//     try {
-//       await deletePlaylist(playlistId);
-//       return playlistId;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message || 'Failed to delete playlist');
-//     }
-//   }
-// );
+export const deletePlaylistAsync = createAsyncThunk(
+  'playlist/delete',
+  async (playlistId, { rejectWithValue, getState }) => {
+    try {
+      await playlistService.deletePlaylist(playlistId);
+      const { auth } = getState();
+      
+      if (auth.user?.id) {
+        const cached = JSON.parse(localStorage.getItem(`userPlaylists_${auth.user.id}`) || '[]');
+        updatePlaylistCache(auth.user.id, cached.filter(p => p._id !== playlistId));
+      }
+      
+      return playlistId;
+    } catch (error) {
+      return rejectWithValue(handleAsyncError(error));
+    }
+  }
+);
 
-// export const addVideoToPlaylist = createAsyncThunk(
-//   'playlist/addVideoToPlaylist',
-//   async ({ videoId, playlistId }, { rejectWithValue }) => {
-//     try {
-//       const response = await addVideoToPlaylist(videoId, playlistId);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message || 'Failed to add video to playlist');
-//     }
-//   }
-// );
+export const addVideoToPlaylistAsync = createAsyncThunk(
+  'playlist/addVideo',
+  async ({ videoId, playlistId }, { rejectWithValue }) => {
+    try {
+      const response = await playlistService.addVideoToPlaylist(videoId, playlistId);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(handleAsyncError(error));
+    }
+  }
+);
 
-// export const removeVideoFromPlaylist = createAsyncThunk(
-//   'playlist/removeVideoFromPlaylist',
-//   async ({ videoId, playlistId }, { rejectWithValue }) => {
-//     try {
-//       const response = await removeVideoFromPlaylist(videoId, playlistId);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message || 'Failed to remove video from playlist');
-//     }
-//   }
-// );
+export const removeVideoFromPlaylistAsync = createAsyncThunk(
+  'playlist/removeVideo',
+  async ({ videoId, playlistId }, { rejectWithValue }) => {
+    try {
+      const response = await playlistService.removeVideoFromPlaylist(videoId, playlistId);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(handleAsyncError(error));
+    }
+  }
+);
 
-// export const getUserPlaylists = createAsyncThunk(
-//   'playlist/getUserPlaylists',
-//   async (userId, { rejectWithValue }) => {
-//     try {
-//       const response = await getUserPlaylists(userId);
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(error.response?.data?.message || 'Failed to fetch user playlists');
-//     }
-//   }
-// );
+export const getUserPlaylistsAsync = createAsyncThunk(
+  'playlist/getUserPlaylists',
+  async (userId, { rejectWithValue }) => {
+    try {
+      // Check cache first
+      const cached = JSON.parse(localStorage.getItem(`userPlaylists_${userId}`) || '[]');
+      if (cached.length > 0) {
+        // Return cached data immediately, fetch fresh data in background
+        playlistService.getUserPlaylists(userId).then(response => {
+          updatePlaylistCache(userId, response.data.playlists);
+        }).catch(console.error);
+        return { playlists: cached };
+      }
+      
+      const response = await playlistService.getUserPlaylists(userId);
+      updatePlaylistCache(userId, response.data.playlists);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(handleAsyncError(error));
+    }
+  }
+);
+
+// Utility function to update playlist in all arrays
+const updatePlaylistInArrays = (state, updatedPlaylist) => {
+  const updateArray = (array) => {
+    const index = array.findIndex(p => p._id === updatedPlaylist._id);
+    if (index !== -1) array[index] = updatedPlaylist;
+  };
+  
+  updateArray(state.playlists);
+  updateArray(state.userPlaylists);
+  
+  if (state.currentPlaylist?._id === updatedPlaylist._id) {
+    state.currentPlaylist = updatedPlaylist;
+  }
+};
 
 const playlistSlice = createSlice({
   name: 'playlist',
   initialState,
   reducers: {
-    clearPlaylistError: (state) => {
-      state.error = null;
+    clearError: (state) => { state.error = null; },
+    clearCurrentPlaylist: (state) => { state.currentPlaylist = null; },
+    resetState: () => initialState,
+    toggleSelection: (state, action) => {
+      const id = action.payload;
+      const index = state.selectedPlaylistIds.indexOf(id);
+      if (index > -1) {
+        state.selectedPlaylistIds.splice(index, 1);
+      } else {
+        state.selectedPlaylistIds.push(id);
+      }
     },
-    clearCurrentPlaylist: (state) => {
-      state.currentPlaylist = null;
+    clearSelection: (state) => { state.selectedPlaylistIds = []; },
+    setSortOptions: (state, action) => {
+      state.sortBy = action.payload.sortBy || state.sortBy;
+      state.sortOrder = action.payload.sortOrder || state.sortOrder;
     }
   },
   extraReducers: (builder) => {
+    // Create Playlist
     builder
-      // Create Playlist
-      .addCase(createPlaylist.pending, (state) => {
-        state.creating = LOADING_STATES.PENDING;
+      .addCase(createPlaylistAsync.pending, (state) => {
+        state.isCreating = LOADING_STATES.PENDING;
         state.error = null;
       })
-      .addCase(createPlaylist.fulfilled, (state, action) => {
-        state.creating = LOADING_STATES.FULFILLED;
-        state.playlists.unshift(action.payload.playlist);
-        state.userPlaylists.unshift(action.payload.playlist);
+      .addCase(createPlaylistAsync.fulfilled, (state, action) => {
+        state.isCreating = LOADING_STATES.FULFILLED;
+        const newPlaylist = action.payload.playlist;
+        state.playlists.unshift(newPlaylist);
+        state.userPlaylists.unshift(newPlaylist);
       })
-      .addCase(createPlaylist.rejected, (state, action) => {
-        state.creating = LOADING_STATES.REJECTED;
+      .addCase(createPlaylistAsync.rejected, (state, action) => {
+        state.isCreating = LOADING_STATES.REJECTED;
         state.error = action.payload;
       })
+      
       // Get Playlist By ID
-      .addCase(getPlaylistById.pending, (state) => {
-        state.loading = LOADING_STATES.PENDING;
+      .addCase(getPlaylistByIdAsync.pending, (state) => {
+        state.isLoading = LOADING_STATES.PENDING;
         state.error = null;
       })
-      .addCase(getPlaylistById.fulfilled, (state, action) => {
-        state.loading = LOADING_STATES.FULFILLED;
+      .addCase(getPlaylistByIdAsync.fulfilled, (state, action) => {
+        state.isLoading = LOADING_STATES.FULFILLED;
         state.currentPlaylist = action.payload.playlist;
       })
-      .addCase(getPlaylistById.rejected, (state, action) => {
-        state.loading = LOADING_STATES.REJECTED;
+      .addCase(getPlaylistByIdAsync.rejected, (state, action) => {
+        state.isLoading = LOADING_STATES.REJECTED;
         state.error = action.payload;
       })
+      
       // Update Playlist
-      .addCase(updatePlaylist.fulfilled, (state, action) => {
-        const index = state.playlists.findIndex(p => p._id === action.payload.playlist._id);
-        if (index !== -1) {
-          state.playlists[index] = action.payload.playlist;
-        }
-        const userIndex = state.userPlaylists.findIndex(p => p._id === action.payload.playlist._id);
-        if (userIndex !== -1) {
-          state.userPlaylists[userIndex] = action.payload.playlist;
-        }
-        if (state.currentPlaylist?._id === action.payload.playlist._id) {
-          state.currentPlaylist = action.payload.playlist;
-        }
+      .addCase(updatePlaylistAsync.pending, (state) => {
+        state.isUpdating = LOADING_STATES.PENDING;
+        state.error = null;
       })
+      .addCase(updatePlaylistAsync.fulfilled, (state, action) => {
+        state.isUpdating = LOADING_STATES.FULFILLED;
+        updatePlaylistInArrays(state, action.payload.playlist);
+      })
+      .addCase(updatePlaylistAsync.rejected, (state, action) => {
+        state.isUpdating = LOADING_STATES.REJECTED;
+        state.error = action.payload;
+      })
+      
       // Delete Playlist
-      .addCase(deletePlaylist.fulfilled, (state, action) => {
-        state.playlists = state.playlists.filter(p => p._id !== action.payload);
-        state.userPlaylists = state.userPlaylists.filter(p => p._id !== action.payload);
-        if (state.currentPlaylist?._id === action.payload) {
+      .addCase(deletePlaylistAsync.fulfilled, (state, action) => {
+        const playlistId = action.payload;
+        state.playlists = state.playlists.filter(p => p._id !== playlistId);
+        state.userPlaylists = state.userPlaylists.filter(p => p._id !== playlistId);
+        state.selectedPlaylistIds = state.selectedPlaylistIds.filter(id => id !== playlistId);
+        if (state.currentPlaylist?._id === playlistId) {
           state.currentPlaylist = null;
         }
       })
-      // Add Video to Playlist
-      .addCase(addVideoToPlaylist.fulfilled, (state, action) => {
-        if (state.currentPlaylist?._id === action.payload.playlist._id) {
-          state.currentPlaylist = action.payload.playlist;
-        }
+      .addCase(deletePlaylistAsync.rejected, (state, action) => {
+        state.error = action.payload;
       })
-      // Remove Video from Playlist
-      .addCase(removeVideoFromPlaylist.fulfilled, (state, action) => {
-        if (state.currentPlaylist?._id === action.payload.playlist._id) {
-          state.currentPlaylist = action.payload.playlist;
-        }
+      
+      // Add/Remove Video from Playlist
+      .addCase(addVideoToPlaylistAsync.fulfilled, (state, action) => {
+        updatePlaylistInArrays(state, action.payload.playlist);
       })
+      .addCase(removeVideoFromPlaylistAsync.fulfilled, (state, action) => {
+        updatePlaylistInArrays(state, action.payload.playlist);
+      })
+      .addCase(addVideoToPlaylistAsync.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      .addCase(removeVideoFromPlaylistAsync.rejected, (state, action) => {
+        state.error = action.payload;
+      })
+      
       // Get User Playlists
-      .addCase(getUserPlaylists.fulfilled, (state, action) => {
+      .addCase(getUserPlaylistsAsync.fulfilled, (state, action) => {
         state.userPlaylists = action.payload.playlists;
+      })
+      .addCase(getUserPlaylistsAsync.rejected, (state, action) => {
+        state.error = action.payload;
       });
   }
 });
 
-export const { clearPlaylistError, clearCurrentPlaylist } = playlistSlice.actions;
+// Selectors
+export const selectPlaylistState = (state) => state.playlist;
+export const selectAllPlaylists = (state) => state.playlist.playlists;
+export const selectCurrentPlaylist = (state) => state.playlist.currentPlaylist;
+export const selectUserPlaylists = (state) => state.playlist.userPlaylists;
+
+export const selectPlaylistById = createSelector(
+  [selectAllPlaylists, (state, id) => id],
+  (playlists, playlistId) => playlists.find(p => p._id === playlistId)
+);
+
+export const selectSortedPlaylists = createSelector(
+  [selectAllPlaylists, selectPlaylistState],
+  (playlists, { sortBy, sortOrder }) => {
+    return [...playlists].sort((a, b) => {
+      const comparison = a[sortBy] > b[sortBy] ? 1 : -1;
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+  }
+);
+
+export const selectPlaylistStats = createSelector(
+  [selectUserPlaylists],
+  (playlists) => ({
+    total: playlists.length,
+    totalVideos: playlists.reduce((sum, p) => sum + (p.videos?.length || 0), 0),
+    public: playlists.filter(p => p.isPublic).length
+  })
+);
+
+export const {
+  clearError,
+  clearCurrentPlaylist,
+  resetState,
+  toggleSelection,
+  clearSelection,
+  setSortOptions
+} = playlistSlice.actions;
+
 export default playlistSlice.reducer;

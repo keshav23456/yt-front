@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { loginUser } from '../../store/slices/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, clearError } from '../../store/slices/authSlice';
 import { Input, Button } from '../common';
 
 const Login = () => {
@@ -9,35 +9,55 @@ const Login = () => {
     email: '',
     password: ''
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
+  // Get state from Redux store instead of local state
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
+
+  // Clear any existing errors when component mounts
+  useEffect(() => {
+    dispatch(clearError());
+  }, [dispatch]);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    
+    // Clear error when user starts typing
+    if (error) {
+      dispatch(clearError());
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+    
+    // Basic validation
+    if (!formData.email.trim() || !formData.password.trim()) {
+      return;
+    }
 
     try {
       const result = await dispatch(loginUser(formData));
       if (result.meta.requestStatus === 'fulfilled') {
-        navigate('/');
-      } else {
-        setError(result.payload || 'Login failed');
+        // Navigation will be handled by the useEffect above
+        // since isAuthenticated will become true
       }
+      // Error handling is managed by Redux state
     } catch (err) {
-      setError('Login failed. Please try again.');
-    } finally {
-      setLoading(false);
+      // This catch block handles any unexpected errors
+      console.error('Login error:', err);
     }
   };
 
@@ -51,8 +71,18 @@ const Login = () => {
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+              <span className="block sm:inline">{error}</span>
+              <button
+                type="button"
+                className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                onClick={() => dispatch(clearError())}
+              >
+                <span className="sr-only">Dismiss</span>
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
             </div>
           )}
           
@@ -65,6 +95,7 @@ const Login = () => {
               onChange={handleChange}
               required
               placeholder="Enter your email or username"
+              disabled={loading}
             />
             
             <Input
@@ -75,6 +106,7 @@ const Login = () => {
               onChange={handleChange}
               required
               placeholder="Enter your password"
+              disabled={loading}
             />
           </div>
 
@@ -83,7 +115,7 @@ const Login = () => {
               type="submit"
               variant="primary"
               className="w-full"
-              disabled={loading}
+              disabled={loading || !formData.email.trim() || !formData.password.trim()}
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </Button>
@@ -92,7 +124,10 @@ const Login = () => {
           <div className="text-center">
             <span className="text-sm text-gray-600">
               Don't have an account?{' '}
-              <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link 
+                to="/signup" 
+                className="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline transition ease-in-out duration-150"
+              >
                 Sign up
               </Link>
             </span>

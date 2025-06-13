@@ -100,10 +100,10 @@ export const useVideo = (videoId = null) => {
     );
   }, [makeRequest]);
 
-  // Like/unlike video
+  // Like/unlike video - Fixed to use the correct service function
   const toggleLike = useCallback(async (id) => {
     return makeRequest(
-      () => videoService.toggleLike(id),
+      () => videoService.toggleVideoLike(id), // Fixed: using toggleVideoLike instead of toggleLike
       {
         onSuccess: (data) => {
           // Update video like status
@@ -125,6 +125,16 @@ export const useVideo = (videoId = null) => {
       }
     );
   }, [makeRequest, video]);
+
+  // Get liked videos
+  const getLikedVideos = useCallback(async () => {
+    return makeRequest(
+      () => videoService.getLikedVideos(),
+      {
+        onSuccess: (data) => setVideos(data.videos || data)
+      }
+    );
+  }, [makeRequest]);
 
   // Auto-fetch video on videoId change
   useEffect(() => {
@@ -149,6 +159,7 @@ export const useVideo = (videoId = null) => {
     deleteVideo,
     togglePublishStatus,
     toggleLike,
+    getLikedVideos, // Added getLikedVideos function
     
     // Setters (for manual updates)
     setVideo,

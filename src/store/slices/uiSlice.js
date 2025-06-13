@@ -1,7 +1,5 @@
-
-
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { LOADING_STATES, LOCAL_STORAGE_KEYS } from '../../utils/constants';
 
 // Async thunk for health check
 export const checkHealthStatus = createAsyncThunk(
@@ -17,8 +15,7 @@ export const checkHealthStatus = createAsyncThunk(
         throw new Error('Health check failed');
       }
       
-      const data = await response.json();
-      return data;
+      return await response.json();
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -28,10 +25,10 @@ export const checkHealthStatus = createAsyncThunk(
 // Initial state
 const initialState = {
   // Theme
-  theme: localStorage.getItem('theme') || 'light',
+  theme: localStorage.getItem(LOCAL_STORAGE_KEYS.THEME) || 'light',
   
   // Loading states
-  isLoading: false,
+  status: LOADING_STATES.IDLE,
   loadingMessage: '',
   
   // Modals
@@ -52,19 +49,19 @@ const initialState = {
   search: {
     query: '',
     filters: {
-      type: 'all', // all, video, channel, playlist
-      duration: 'any', // any, short, medium, long
-      uploadDate: 'any', // any, today, week, month, year
-      sortBy: 'relevance', // relevance, date, views, rating
+      type: 'all',
+      duration: 'any',
+      uploadDate: 'any',
+      sortBy: 'relevance',
     },
   },
   
-  // Notifications/Toasts
+  // Notifications
   notifications: [],
   
   // Health status
   serverHealth: {
-    status: 'unknown',
+    status: LOADING_STATES.IDLE,
     lastChecked: null,
     error: null,
   },
@@ -78,11 +75,10 @@ const initialState = {
     quality: localStorage.getItem('playerQuality') || 'auto',
     autoplay: localStorage.getItem('playerAutoplay') === 'true',
     theater: false,
-    pip: false, // Picture in Picture
+    pip: false,
   },
 };
 
-// UI slice
 const uiSlice = createSlice({
   name: 'ui',
   initialState,
@@ -90,25 +86,27 @@ const uiSlice = createSlice({
     // Theme
     setTheme: (state, action) => {
       state.theme = action.payload;
-      localStorage.setItem('theme', action.payload);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.THEME, action.payload);
     },
     toggleTheme: (state) => {
       state.theme = state.theme === 'light' ? 'dark' : 'light';
-      localStorage.setItem('theme', state.theme);
+      localStorage.setItem(LOCAL_STORAGE_KEYS.THEME, state.theme);
     },
     
     // Loading
     setLoading: (state, action) => {
-      state.isLoading = action.payload.isLoading;
+      state.status = action.payload.isLoading ? LOADING_STATES.LOADING : LOADING_STATES.IDLE;
       state.loadingMessage = action.payload.message || '';
     },
     
     // Modals
-    openModal: (state, action) => {
-      state.modals[action.payload] = true;
+    toggleModal: (state, action) => {
+      const modalName = action.payload;
+      state.modals[modalName] = !state.modals[modalName];
     },
-    closeModal: (state, action) => {
-      state.modals[action.payload] = false;
+    setModal: (state, action) => {
+      const { modal, isOpen } = action.payload;
+      state.modals[modal] = isOpen;
     },
     closeAllModals: (state) => {
       Object.keys(state.modals).forEach(key => {
@@ -120,24 +118,25 @@ const uiSlice = createSlice({
     toggleSidebar: (state) => {
       state.sidebar.isOpen = !state.sidebar.isOpen;
     },
-    setSidebarOpen: (state, action) => {
-      state.sidebar.isOpen = action.payload;
-    },
     toggleSidebarCollapse: (state) => {
       state.sidebar.isCollapsed = !state.sidebar.isCollapsed;
       localStorage.setItem('sidebarCollapsed', state.sidebar.isCollapsed.toString());
     },
-    setSidebarCollapsed: (state, action) => {
-      state.sidebar.isCollapsed = action.payload;
-      localStorage.setItem('sidebarCollapsed', action.payload.toString());
+    setSidebar: (state, action) => {
+      state.sidebar = { ...state.sidebar, ...action.payload };
+      if (action.payload.isCollapsed !== undefined) {
+        localStorage.setItem('sidebarCollapsed', action.payload.isCollapsed.toString());
+      }
     },
     
     // Search
-    setSearchQuery: (state, action) => {
-      state.search.query = action.payload;
-    },
-    setSearchFilters: (state, action) => {
-      state.search.filters = { ...state.search.filters, ...action.payload };
+    updateSearch: (state, action) => {
+      if (action.payload.query !== undefined) {
+        state.search.query = action.payload.query;
+      }
+      if (action.payload.filters) {
+        state.search.filters = { ...state.search.filters, ...action.payload.filters };
+      }
     },
     clearSearch: (state) => {
       state.search.query = '';
@@ -148,7 +147,7 @@ const uiSlice = createSlice({
     addNotification: (state, action) => {
       const notification = {
         id: Date.now() + Math.random(),
-        type: action.payload.type || 'info', // success, error, warning, info
+        type: action.payload.type || 'info',
         title: action.payload.title,
         message: action.payload.message,
         duration: action.payload.duration || 5000,
@@ -157,9 +156,7 @@ const uiSlice = createSlice({
       state.notifications.push(notification);
     },
     removeNotification: (state, action) => {
-      state.notifications = state.notifications.filter(
-        notification => notification.id !== action.payload
-      );
+      state.notifications = state.notifications.filter(n => n.id !== action.payload);
     },
     clearNotifications: (state) => {
       state.notifications = [];
@@ -183,44 +180,41 @@ const uiSlice = createSlice({
     },
     
     // Player
-    setPlayerVolume: (state, action) => {
-      state.player.volume = action.payload;
-      localStorage.setItem('playerVolume', action.payload.toString());
+    updatePlayer: (state, action) => {
+      state.player = { ...state.player, ...action.payload };
+      
+      // Update localStorage for persistent settings
+      if (action.payload.volume !== undefined) {
+        localStorage.setItem('playerVolume', action.payload.volume.toString());
+      }
+      if (action.payload.quality !== undefined) {
+        localStorage.setItem('playerQuality', action.payload.quality);
+      }
+      if (action.payload.autoplay !== undefined) {
+        localStorage.setItem('playerAutoplay', action.payload.autoplay.toString());
+      }
     },
-    setPlayerQuality: (state, action) => {
-      state.player.quality = action.payload;
-      localStorage.setItem('playerQuality', action.payload);
-    },
-    setPlayerAutoplay: (state, action) => {
-      state.player.autoplay = action.payload;
-      localStorage.setItem('playerAutoplay', action.payload.toString());
-    },
-    toggleTheaterMode: (state) => {
-      state.player.theater = !state.player.theater;
-    },
-    setTheaterMode: (state, action) => {
-      state.player.theater = action.payload;
-    },
-    togglePictureInPicture: (state) => {
-      state.player.pip = !state.player.pip;
-    },
-    setPictureInPicture: (state, action) => {
-      state.player.pip = action.payload;
-    },
+    togglePlayerSetting: (state, action) => {
+      const setting = action.payload;
+      if (setting === 'theater') {
+        state.player.theater = !state.player.theater;
+      } else if (setting === 'pip') {
+        state.player.pip = !state.player.pip;
+      }
+    }
   },
   extraReducers: (builder) => {
     builder
-      // Health Check
       .addCase(checkHealthStatus.pending, (state) => {
-        state.serverHealth.status = 'checking';
+        state.serverHealth.status = LOADING_STATES.LOADING;
       })
-      .addCase(checkHealthStatus.fulfilled, (state, action) => {
-        state.serverHealth.status = 'healthy';
+      .addCase(checkHealthStatus.fulfilled, (state) => {
+        state.serverHealth.status = LOADING_STATES.SUCCESS;
         state.serverHealth.lastChecked = new Date().toISOString();
         state.serverHealth.error = null;
       })
       .addCase(checkHealthStatus.rejected, (state, action) => {
-        state.serverHealth.status = 'unhealthy';
+        state.serverHealth.status = LOADING_STATES.ERROR;
         state.serverHealth.lastChecked = new Date().toISOString();
         state.serverHealth.error = action.payload;
       });
@@ -228,47 +222,25 @@ const uiSlice = createSlice({
 });
 
 export const {
-  // Theme
   setTheme,
   toggleTheme,
-  
-  // Loading
   setLoading,
-  
-  // Modals
-  openModal,
-  closeModal,
+  toggleModal,
+  setModal,
   closeAllModals,
-  
-  // Sidebar
   toggleSidebar,
-  setSidebarOpen,
   toggleSidebarCollapse,
-  setSidebarCollapsed,
-  
-  // Search
-  setSearchQuery,
-  setSearchFilters,
+  setSidebar,
+  updateSearch,
   clearSearch,
-  
-  // Notifications
   addNotification,
   removeNotification,
   clearNotifications,
-  
-  // Errors
   addError,
   removeError,
   clearErrors,
-  
-  // Player
-  setPlayerVolume,
-  setPlayerQuality,
-  setPlayerAutoplay,
-  toggleTheaterMode,
-  setTheaterMode,
-  togglePictureInPicture,
-  setPictureInPicture,
+  updatePlayer,
+  togglePlayerSetting,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

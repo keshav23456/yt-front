@@ -22,6 +22,8 @@ export const selectUI = (state) => state.ui;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectCurrentUser = (state) => state.auth.user;
 export const selectAuthLoading = (state) => state.auth.loading;
+export const selectAuthToken = (state) => state.auth.token;
+export const selectAuthError = (state) => state.auth.error;
 export const selectCurrentVideo = (state) => state.video.currentVideo;
 export const selectVideos = (state) => state.video.videos;
 export const selectVideoLoading = (state) => state.video.loading;

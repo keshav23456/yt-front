@@ -111,5 +111,5 @@ const userService = {
   getUserProfileService,
   searchUsersService
 };
-
+export { userService };
 export default userService;

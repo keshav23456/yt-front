@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { VideoGrid, VideoCard } from '../../components/video';
 import { SubscribeButton } from '../../components/social';
 import { Button, Loading } from '../../components/common';
-import { getUserChannel,getChannelVideos } from '../../services';
+import { getUserChannelService,getChannelVideosService } from '../../services';
 import { getChannelStats } from '../../services';
 
 
@@ -33,12 +33,12 @@ const Channel = () => {
       setError(null);
 
       // Load channel profile
-      const channelResponse = await getUserChannel(username);
+      const channelResponse = await getUserChannelService(username);
       if (channelResponse.success) {
         setChannelData(channelResponse.data);
         
         // Load channel videos
-        const videosResponse = await getChannelVideos(channelResponse.data._id);
+        const videosResponse = await getChannelVideosService(channelResponse.data._id);
         if (videosResponse.success) {
          
           setVideos(videosResponse.data.videos || []);

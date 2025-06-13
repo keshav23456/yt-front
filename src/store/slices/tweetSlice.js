@@ -1,14 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { tweetService } from '../../services';
-import { LOADING_STATES } from '../../utils/constants';
+import { LOADING_STATES, ERROR_MESSAGES } from '../../utils/constants';
 
 const initialState = {
   tweets: [],
   userTweets: [],
-  loading: LOADING_STATES.IDLE,
-  error: null,
-  creating: LOADING_STATES.IDLE,
-  updating: LOADING_STATES.IDLE
+  isLoading: false,
+  isCreating: false,
+  isUpdating: false,
+  error: null
+};
+
+// Helper for consistent error handling
+const handleError = (error) => {
+  return error.response?.data?.message || error.message || ERROR_MESSAGES.SERVER_ERROR;
 };
 
 // Async thunks
@@ -19,7 +24,7 @@ export const createTweet = createAsyncThunk(
       const response = await tweetService.createTweet(tweetData);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create tweet');
+      return rejectWithValue(handleError(error));
     }
   }
 );
@@ -31,7 +36,7 @@ export const getUserTweets = createAsyncThunk(
       const response = await tweetService.getUserTweets(userId);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch tweets');
+      return rejectWithValue(handleError(error));
     }
   }
 );
@@ -43,7 +48,7 @@ export const updateTweet = createAsyncThunk(
       const response = await tweetService.updateTweet(tweetId, { content });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update tweet');
+      return rejectWithValue(handleError(error));
     }
   }
 );
@@ -55,16 +60,26 @@ export const deleteTweet = createAsyncThunk(
       await tweetService.deleteTweet(tweetId);
       return tweetId;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to delete tweet');
+      return rejectWithValue(handleError(error));
     }
   }
 );
+
+// Helper for updating tweets in arrays
+const updateTweetInState = (state, updatedTweet) => {
+  const updateArray = (array) => {
+    const index = array.findIndex(t => t._id === updatedTweet._id);
+    if (index !== -1) array[index] = updatedTweet;
+  };
+  updateArray(state.tweets);
+  updateArray(state.userTweets);
+};
 
 const tweetSlice = createSlice({
   name: 'tweet',
   initialState,
   reducers: {
-    clearTweetError: (state) => {
+    clearError: (state) => {
       state.error = null;
     },
     clearTweets: (state) => {
@@ -76,58 +91,57 @@ const tweetSlice = createSlice({
     builder
       // Create Tweet
       .addCase(createTweet.pending, (state) => {
-        state.creating = LOADING_STATES.PENDING;
+        state.isCreating = true;
         state.error = null;
       })
       .addCase(createTweet.fulfilled, (state, action) => {
-        state.creating = LOADING_STATES.FULFILLED;
-        state.tweets.unshift(action.payload.tweet);
-        state.userTweets.unshift(action.payload.tweet);
+        state.isCreating = false;
+        const tweet = action.payload.tweet || action.payload;
+        state.tweets.unshift(tweet);
+        state.userTweets.unshift(tweet);
       })
       .addCase(createTweet.rejected, (state, action) => {
-        state.creating = LOADING_STATES.REJECTED;
+        state.isCreating = false;
         state.error = action.payload;
       })
+      
       // Get User Tweets
       .addCase(getUserTweets.pending, (state) => {
-        state.loading = LOADING_STATES.PENDING;
+        state.isLoading = true;
         state.error = null;
       })
       .addCase(getUserTweets.fulfilled, (state, action) => {
-        state.loading = LOADING_STATES.FULFILLED;
-        state.userTweets = action.payload.tweets;
+        state.isLoading = false;
+        state.userTweets = action.payload.tweets || action.payload;
       })
       .addCase(getUserTweets.rejected, (state, action) => {
-        state.loading = LOADING_STATES.REJECTED;
+        state.isLoading = false;
         state.error = action.payload;
       })
+      
       // Update Tweet
       .addCase(updateTweet.pending, (state) => {
-        state.updating = LOADING_STATES.PENDING;
+        state.isUpdating = true;
         state.error = null;
       })
       .addCase(updateTweet.fulfilled, (state, action) => {
-        state.updating = LOADING_STATES.FULFILLED;
-        const tweetIndex = state.tweets.findIndex(t => t._id === action.payload.tweet._id);
-        if (tweetIndex !== -1) {
-          state.tweets[tweetIndex] = action.payload.tweet;
-        }
-        const userTweetIndex = state.userTweets.findIndex(t => t._id === action.payload.tweet._id);
-        if (userTweetIndex !== -1) {
-          state.userTweets[userTweetIndex] = action.payload.tweet;
-        }
+        state.isUpdating = false;
+        const tweet = action.payload.tweet || action.payload;
+        updateTweetInState(state, tweet);
       })
       .addCase(updateTweet.rejected, (state, action) => {
-        state.updating = LOADING_STATES.REJECTED;
+        state.isUpdating = false;
         state.error = action.payload;
       })
+      
       // Delete Tweet
       .addCase(deleteTweet.fulfilled, (state, action) => {
-        state.tweets = state.tweets.filter(t => t._id !== action.payload);
-        state.userTweets = state.userTweets.filter(t => t._id !== action.payload);
+        const tweetId = action.payload;
+        state.tweets = state.tweets.filter(t => t._id !== tweetId);
+        state.userTweets = state.userTweets.filter(t => t._id !== tweetId);
       });
   }
 });
 
-export const { clearTweetError, clearTweets } = tweetSlice.actions;
+export const { clearError, clearTweets } = tweetSlice.actions;
 export default tweetSlice.reducer;

@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { likeService } from '../../services';
 
-// Async thunks for API calls
+// Async thunks with consistent error handling
 export const toggleVideoLike = createAsyncThunk(
   'likes/toggleVideoLike',
   async (videoId, { rejectWithValue }) => {
@@ -51,7 +51,6 @@ export const toggleTweetLike = createAsyncThunk(
   }
 );
 
-// Get user's liked videos
 export const getLikedVideos = createAsyncThunk(
   'likes/getLikedVideos',
   async ({ page = 1, limit = 10 } = {}, { rejectWithValue }) => {
@@ -65,12 +64,12 @@ export const getLikedVideos = createAsyncThunk(
 );
 
 const initialState = {
-  // Store like status for different content types
-  videoLikes: {}, // { videoId: { isLiked: boolean, likesCount: number } }
-  commentLikes: {}, // { commentId: { isLiked: boolean, likesCount: number } }
-  tweetLikes: {}, // { tweetId: { isLiked: boolean, likesCount: number } }
+  // Like status for different content types
+  videoLikes: {},
+  commentLikes: {},
+  tweetLikes: {},
   
-  // Liked content lists
+  // Liked content
   likedVideos: [],
   likedVideosMeta: {
     totalDocs: 0,
@@ -80,16 +79,16 @@ const initialState = {
     hasPrevPage: false
   },
   
-  // Loading states
-  loading: {
+  // Consistent loading states
+  isLoading: {
     toggleVideo: false,
     toggleComment: false,
     toggleTweet: false,
     fetchLikedVideos: false
   },
   
-  // Error states
-  error: {
+  // Consistent error states
+  errors: {
     toggleVideo: null,
     toggleComment: null,
     toggleTweet: null,
@@ -101,16 +100,10 @@ const likeSlice = createSlice({
   name: 'likes',
   initialState,
   reducers: {
-    // Clear all like data (useful for logout)
     clearLikeData: (state) => {
-      state.videoLikes = {};
-      state.commentLikes = {};
-      state.tweetLikes = {};
-      state.likedVideos = [];
-      state.likedVideosMeta = initialState.likedVideosMeta;
+      Object.assign(state, initialState);
     },
     
-    // Set initial like status for content (when loading content)
     setVideoLikeStatus: (state, action) => {
       const { videoId, isLiked, likesCount } = action.payload;
       state.videoLikes[videoId] = { isLiked, likesCount };
@@ -126,73 +119,73 @@ const likeSlice = createSlice({
       state.tweetLikes[tweetId] = { isLiked, likesCount };
     },
     
-    // Clear specific errors
     clearError: (state, action) => {
       const errorType = action.payload;
-      if (state.error[errorType]) {
-        state.error[errorType] = null;
+      if (state.errors[errorType] !== undefined) {
+        state.errors[errorType] = null;
       }
     }
   },
+  
   extraReducers: (builder) => {
+    // Toggle Video Like
     builder
-      // Toggle Video Like
       .addCase(toggleVideoLike.pending, (state) => {
-        state.loading.toggleVideo = true;
-        state.error.toggleVideo = null;
+        state.isLoading.toggleVideo = true;
+        state.errors.toggleVideo = null;
       })
       .addCase(toggleVideoLike.fulfilled, (state, action) => {
-        state.loading.toggleVideo = false;
+        state.isLoading.toggleVideo = false;
         const { videoId, isLiked, likesCount } = action.payload;
         state.videoLikes[videoId] = { isLiked, likesCount };
         
-        // Update liked videos list if video was unliked
+        // Remove from liked videos if unliked
         if (!isLiked) {
           state.likedVideos = state.likedVideos.filter(video => video._id !== videoId);
         }
       })
       .addCase(toggleVideoLike.rejected, (state, action) => {
-        state.loading.toggleVideo = false;
-        state.error.toggleVideo = action.payload;
+        state.isLoading.toggleVideo = false;
+        state.errors.toggleVideo = action.payload;
       })
       
       // Toggle Comment Like
       .addCase(toggleCommentLike.pending, (state) => {
-        state.loading.toggleComment = true;
-        state.error.toggleComment = null;
+        state.isLoading.toggleComment = true;
+        state.errors.toggleComment = null;
       })
       .addCase(toggleCommentLike.fulfilled, (state, action) => {
-        state.loading.toggleComment = false;
+        state.isLoading.toggleComment = false;
         const { commentId, isLiked, likesCount } = action.payload;
         state.commentLikes[commentId] = { isLiked, likesCount };
       })
       .addCase(toggleCommentLike.rejected, (state, action) => {
-        state.loading.toggleComment = false;
-        state.error.toggleComment = action.payload;
+        state.isLoading.toggleComment = false;
+        state.errors.toggleComment = action.payload;
       })
       
       // Toggle Tweet Like
       .addCase(toggleTweetLike.pending, (state) => {
-        state.loading.toggleTweet = true;
-        state.error.toggleTweet = null;
+        state.isLoading.toggleTweet = true;
+        state.errors.toggleTweet = null;
       })
       .addCase(toggleTweetLike.fulfilled, (state, action) => {
-        state.loading.toggleTweet = false;
+        state.isLoading.toggleTweet = false;
         const { tweetId, isLiked, likesCount } = action.payload;
         state.tweetLikes[tweetId] = { isLiked, likesCount };
       })
       .addCase(toggleTweetLike.rejected, (state, action) => {
-        state.loading.toggleTweet = false;
-        state.error.toggleTweet = action.payload;
+        state.isLoading.toggleTweet = false;
+        state.errors.toggleTweet = action.payload;
       })
       
       // Get Liked Videos
       .addCase(getLikedVideos.pending, (state) => {
-        state.loading.fetchLikedVideos = true;
-        state.error.fetchLikedVideos = null;
+        state.isLoading.fetchLikedVideos = true;
+        state.errors.fetchLikedVideos = null;
       })
       .addCase(getLikedVideos.fulfilled, (state, action) => {
-        state.loading.fetchLikedVideos = false;
+        state.isLoading.fetchLikedVideos = false;
         const { docs, ...meta } = action.payload;
         
         if (meta.page === 1) {
@@ -203,7 +196,7 @@ const likeSlice = createSlice({
         
         state.likedVideosMeta = meta;
         
-        // Update video likes status from fetched data
+        // Update video likes status
         docs.forEach(video => {
           state.videoLikes[video._id] = {
             isLiked: true,
@@ -212,13 +205,13 @@ const likeSlice = createSlice({
         });
       })
       .addCase(getLikedVideos.rejected, (state, action) => {
-        state.loading.fetchLikedVideos = false;
-        state.error.fetchLikedVideos = action.payload;
+        state.isLoading.fetchLikedVideos = false;
+        state.errors.fetchLikedVideos = action.payload;
       });
   }
 });
 
-// Action creators
+// Export actions
 export const {
   clearLikeData,
   setVideoLikeStatus,
@@ -239,7 +232,7 @@ export const selectTweetLikeStatus = (state, tweetId) =>
 
 export const selectLikedVideos = (state) => state.likes.likedVideos;
 export const selectLikedVideosMeta = (state) => state.likes.likedVideosMeta;
-export const selectLikeLoading = (state) => state.likes.loading;
-export const selectLikeErrors = (state) => state.likes.error;
+export const selectLikeIsLoading = (state) => state.likes.isLoading;
+export const selectLikeErrors = (state) => state.likes.errors;
 
 export default likeSlice.reducer;

@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 
-import { refreshToken as refreshTokenService, getCurrentUser, login as loginService, register as registerService, logout as logoutService } from '../services/auth.service';
+// Fixed imports to match the corrected services/index.js exports
+import { 
+  refreshTokenService, 
+  getCurrentUserService as getCurrentUser, 
+  loginService, 
+  registerService, 
+  logoutService 
+} from '../services';
 
 // Initial state
 const initialState = {

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks';
 import { Button, Input } from '../../components/common';
-import { login } from '../../services';
+import { loginService } from '../../services';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
@@ -33,7 +33,7 @@ const Login = () => {
     setError('');
 
     try {
-      await login(credentials);
+      await loginService(credentials);
       navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');

@@ -1,91 +1,108 @@
-export { 
-  register, 
-  login, 
-  logout, 
-  refreshToken, 
-  getCurrentUser, 
-  // changePassword 
+// Auth service function exports
+export {
+  loginService,
+  registerService,
+  logoutService,
+  refreshTokenService,
+  getCurrentUserService,
+  changePasswordService,
+  updateAccountService,
+  getStoredUserService,
+  getStoredTokenService,
+  isAuthenticatedService
 } from './auth.service.js';
 
-export { 
-  // getCurrentUser,
-  getUserChannel,
-  getChannelVideos,
-  getWatchHistory,
-  updateUserAccount,
-  updateAccountDetails,
-  updateUserAvatar,
-  updateAvatar,
-  updateUserCoverImage,
-  updateCoverImage,
-  changePassword,
-  getUserProfile,
-  searchUsers
+// User service function exports
+export {
+  getUserChannelService,
+  getChannelProfileService,
+  getChannelVideosService,
+  getWatchHistoryService,
+  updateUserAccountService,
+  updateProfileService,
+  updateAccountDetailsService,
+  updateUserAvatarService,
+  updateAvatarService,
+  updateUserCoverImageService,
+  updateCoverImageService,
+  changePasswordService as userChangePasswordService,
+  getUserProfileService,
+  searchUsersService
 } from './user.service.js';
 
-export { 
-  getAllVideos, 
-  uploadVideo, 
-  getVideoById, 
-  updateVideo, 
-  deleteVideo, 
-  togglePublishStatus 
+// Video service function exports
+export {
+  getAllVideos,
+  uploadVideo,
+  getVideoById,
+  updateVideo,
+  deleteVideo,
+  togglePublishStatus
 } from './video.service.js';
 
-export { 
-  getVideoComments, 
-  addComment, 
-  updateComment, 
-  deleteComment 
+// Comment service function exports
+export {
+  getVideoComments,
+  addComment,
+  updateComment,
+  deleteComment,
+  toggleCommentLike as toggleCommentLikeService,
+  addReply,
+  getReplies
 } from './comment.service.js';
 
-export { 
-  toggleVideoLike, 
-  toggleCommentLike, 
-  toggleTweetLike, 
-  getLikedVideos 
+// Like service function exports
+export {
+  toggleVideoLike,
+  toggleCommentLike,
+  toggleTweetLike,
+  getLikedVideos
 } from './like.service.js';
 
-export { 
-  toggleSubscription, 
-  getSubscribedChannels, 
-  getChannelSubscribers 
+// Subscription service function exports
+export {
+  toggleSubscription,
+  getUserSubscriptions,
+  getSubscribedChannels,
+  getChannelSubscribers
 } from './subscription.service.js';
 
-export { 
-  createPlaylist, 
-  getPlaylistById, 
-  updatePlaylist, 
-  deletePlaylist, 
-  addVideoToPlaylist, 
-  removeVideoFromPlaylist, 
-  getUserPlaylists 
+// Playlist service function exports
+export {
+  createPlaylist,
+  getPlaylistById,
+  updatePlaylist,
+  deletePlaylist,
+  addVideoToPlaylist,
+  removeVideoFromPlaylist,
+  getUserPlaylists
 } from './playlist.service.js';
 
-export { 
-  createTweet, 
-  getUserTweets, 
-  updateTweet, 
-  deleteTweet 
+// Tweet service function exports
+export {
+  createTweet,
+  getUserTweets,
+  updateTweet,
+  deleteTweet
 } from './tweet.service.js';
 
-export { 
-  getChannelStats, 
-  // getChannelVideos 
+// Dashboard service function exports
+export {
+  getChannelStats,
+  getChannelVideos as dashboardGetChannelVideos
 } from './dashboard.service.js';
 
-export { 
-  healthcheck 
+// Healthcheck service function exports
+export {
+  healthcheck
 } from './healthcheck.service.js';
 
-// Service object exports
-export { authService } from './auth.service.js';
-import userService from './user.service.js';
-export { userService };
-
+// Service object exports (for those who prefer object-based imports)
+export { default as authService } from './auth.service.js';
 export { videoService } from './video.service.js';
 export { commentService } from './comment.service.js';
 export { likeService } from './like.service.js';
+export { default as userService } from './user.service.js';
 export { subscriptionService } from './subscription.service.js';
 export { playlistService } from './playlist.service.js';
 export { tweetService } from './tweet.service.js';

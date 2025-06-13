@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Loading from '../../components/common/Loading';
 
-import { getSubscribedChannels } from '../../services';
-import { getChannelVideos } from '../../services';
+// Fixed imports - added missing services
+import { 
+  getSubscribedChannels, 
+  toggleSubscription,
+  getChannelVideosService // or getUserVideos - depending on your service naming
+} from '../../services';
 
 const Subscriptions = () => {
   const { user } = useSelector(state => state.auth);
@@ -30,7 +34,8 @@ const Subscriptions = () => {
         // Fetch recent videos from subscribed channels
         if (channelsResponse.data.length > 0) {
           const videosPromises = channelsResponse.data.map(channel =>
-            getUserVideos(channel._id).catch(() => ({ data: [] }))
+            // Fixed: Use the correct service function name
+            getChannelVideosService(channel._id).catch(() => ({ data: [] }))
           );
           
           const videosResponses = await Promise.all(videosPromises);
@@ -54,11 +59,16 @@ const Subscriptions = () => {
 
   const handleUnsubscribe = async (channelId) => {
     try {
-      // Assuming toggleSubscription API
-      // await toggleSubscription(channelId);
-      setChannels(prevChannels =>
-        prevChannels.filter(channel => channel._id !== channelId)
-      );
+      // Fixed: Uncommented and using the imported service
+      const response = await toggleSubscription(channelId);
+      
+      if (response.success) {
+        setChannels(prevChannels =>
+          prevChannels.filter(channel => channel._id !== channelId)
+        );
+      } else {
+        console.error('Failed to unsubscribe:', response.message);
+      }
     } catch (err) {
       console.error('Error unsubscribing:', err);
     }

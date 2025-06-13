@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Modal, Button } from '../common';
 import CreatePlaylist from './CreatePlaylist';
-import { getUserPlaylists, addVideoToPlaylist, removeVideoFromPlaylist } from '../../store/slices/playlistSlice';
+import { getUserPlaylistsAsync, addVideoToPlaylistAsync, removeVideoFromPlaylistAsync } from '../../store/slices/playlistSlice';
 
 const AddToPlaylist = ({ videoId, isOpen, onClose }) => {
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,7 @@ const AddToPlaylist = ({ videoId, isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen && user) {
-      dispatch(getUserPlaylists(user._id));
+      dispatch(getUserPlaylistsAsync(user._id));
     }
   }, [isOpen, user, dispatch]);
 
@@ -34,14 +34,14 @@ const AddToPlaylist = ({ videoId, isOpen, onClose }) => {
     setLoading(true);
     try {
       if (selectedPlaylists.has(playlistId)) {
-        await dispatch(removeVideoFromPlaylist({ videoId, playlistId })).unwrap();
+        await dispatch(removeVideoFromPlaylistAsync({ videoId, playlistId })).unwrap();
         setSelectedPlaylists(prev => {
           const newSet = new Set(prev);
           newSet.delete(playlistId);
           return newSet;
         });
       } else {
-        await dispatch(addVideoToPlaylist({ videoId, playlistId })).unwrap();
+        await dispatch(addVideoToPlaylistAsync({ videoId, playlistId })).unwrap();
         setSelectedPlaylists(prev => new Set([...prev, playlistId]));
       }
     } catch (error) {

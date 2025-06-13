@@ -5,8 +5,8 @@ import { LOADING_STATES } from '../../utils/constants';
 const initialState = {
   videos: [],
   currentVideo: null,
-  uploading: LOADING_STATES.IDLE,
-  loading: LOADING_STATES.IDLE,
+  status: LOADING_STATES.IDLE,
+  uploadStatus: LOADING_STATES.IDLE,
   error: null,
   uploadProgress: 0,
   pagination: {
@@ -18,7 +18,7 @@ const initialState = {
   },
   filters: {
     sortBy: 'createdAt',
-    sortType: 'desc',
+    sortOrder: 'desc',
     query: ''
   }
 };
@@ -50,9 +50,15 @@ export const getVideoById = createAsyncThunk(
 
 export const uploadVideo = createAsyncThunk(
   'video/uploadVideo',
-  async ({ videoData, onProgress }, { rejectWithValue }) => {
+  async ({ videoData, onProgress }, { rejectWithValue, dispatch }) => {
     try {
-      const response = await videoService.uploadVideo(videoData, onProgress);
+      const progressCallback = (progressEvent) => {
+        const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        dispatch(setUploadProgress(progress));
+        if (onProgress) onProgress(progress);
+      };
+      
+      const response = await videoService.uploadVideo(videoData, progressCallback);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Video upload failed');
@@ -100,7 +106,7 @@ const videoSlice = createSlice({
   name: 'video',
   initialState,
   reducers: {
-    clearVideoError: (state) => {
+    clearError: (state) => {
       state.error = null;
     },
     setCurrentVideo: (state, action) => {
@@ -109,14 +115,14 @@ const videoSlice = createSlice({
     clearCurrentVideo: (state) => {
       state.currentVideo = null;
     },
-    setFilters: (state, action) => {
+    updateFilters: (state, action) => {
       state.filters = { ...state.filters, ...action.payload };
     },
     setUploadProgress: (state, action) => {
       state.uploadProgress = action.payload;
     },
     resetUpload: (state) => {
-      state.uploading = LOADING_STATES.IDLE;
+      state.uploadStatus = LOADING_STATES.IDLE;
       state.uploadProgress = 0;
     }
   },
@@ -124,43 +130,43 @@ const videoSlice = createSlice({
     builder
       // Get All Videos
       .addCase(getAllVideos.pending, (state) => {
-        state.loading = LOADING_STATES.PENDING;
+        state.status = LOADING_STATES.LOADING;
         state.error = null;
       })
       .addCase(getAllVideos.fulfilled, (state, action) => {
-        state.loading = LOADING_STATES.FULFILLED;
+        state.status = LOADING_STATES.SUCCESS;
         state.videos = action.payload.videos;
         state.pagination = action.payload.pagination;
       })
       .addCase(getAllVideos.rejected, (state, action) => {
-        state.loading = LOADING_STATES.REJECTED;
+        state.status = LOADING_STATES.ERROR;
         state.error = action.payload;
       })
       // Get Video By ID
       .addCase(getVideoById.pending, (state) => {
-        state.loading = LOADING_STATES.PENDING;
+        state.status = LOADING_STATES.LOADING;
         state.error = null;
       })
       .addCase(getVideoById.fulfilled, (state, action) => {
-        state.loading = LOADING_STATES.FULFILLED;
+        state.status = LOADING_STATES.SUCCESS;
         state.currentVideo = action.payload.video;
       })
       .addCase(getVideoById.rejected, (state, action) => {
-        state.loading = LOADING_STATES.REJECTED;
+        state.status = LOADING_STATES.ERROR;
         state.error = action.payload;
       })
       // Upload Video
       .addCase(uploadVideo.pending, (state) => {
-        state.uploading = LOADING_STATES.PENDING;
+        state.uploadStatus = LOADING_STATES.LOADING;
         state.error = null;
       })
       .addCase(uploadVideo.fulfilled, (state, action) => {
-        state.uploading = LOADING_STATES.FULFILLED;
+        state.uploadStatus = LOADING_STATES.SUCCESS;
         state.videos.unshift(action.payload.video);
         state.uploadProgress = 0;
       })
       .addCase(uploadVideo.rejected, (state, action) => {
-        state.uploading = LOADING_STATES.REJECTED;
+        state.uploadStatus = LOADING_STATES.ERROR;
         state.error = action.payload;
         state.uploadProgress = 0;
       })
@@ -195,10 +201,10 @@ const videoSlice = createSlice({
 });
 
 export const {
-  clearVideoError,
+  clearError,
   setCurrentVideo,
   clearCurrentVideo,
-  setFilters,
+  updateFilters,
   setUploadProgress,
   resetUpload
 } = videoSlice.actions;

@@ -1,9 +1,9 @@
-// src/components/playlist/CreatePlaylist.jsx
+
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Button } from '../common';
 import PlaylistModal from './PlaylistModal';
-// import { createPlaylist } from '../../store/slices/playlistSlice';
+import { createPlaylistAsync } from '../../store/slices/playlistSlice';
 
 const CreatePlaylist = ({ className = '' }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,7 +13,7 @@ const CreatePlaylist = ({ className = '' }) => {
   const handleCreate = async (playlistData) => {
     setLoading(true);
     try {
-      await dispatch(createPlaylist(playlistData)).unwrap();
+      await dispatch(createPlaylistAsync(playlistData)).unwrap();
       setIsModalOpen(false);
     } catch (error) {
       console.error('Failed to create playlist:', error);
