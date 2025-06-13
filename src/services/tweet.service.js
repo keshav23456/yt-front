@@ -20,9 +20,9 @@ export const deleteTweet = async (tweetId) => {
   return response.data;
 };
 
-export const tweetService = {
-  createTweet,
-  getUserTweets,
-  updateTweet,
-  deleteTweet
-};
+export const tweetService={
+    createTweet,
+    getUserTweets,
+    updateTweet,
+    deleteTweet
+}

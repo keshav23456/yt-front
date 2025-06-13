@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 
-import { refreshToken as refreshTokenService, getCurrentUser, login as loginService, register as registerService, logout as logoutService } from '../services/auth.service';
+import {authService} from '../services/auth.service';
+const refreshTokenService = authService.refreshTokenService;
+const getCurrentUser = authService.getCurrentUserService;
+const loginService = authService.loginService;
+const registerService = authService.registerService;
+const logoutService = authService.logoutService;
+
 
 // Initial state
 const initialState = {

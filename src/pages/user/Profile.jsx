@@ -5,7 +5,7 @@ import { Button, Input, Loading } from '../../components/common';
 import { updateUser } from '../../store/slices/authSlice';
 import { validateEmail, validateName } from '../../utils/validators';
 import { showToast } from '../../utils/helpers';
-import { updateUserAccount,updateUserAvatar,updateUserCoverImage } from '../../services';
+import { updateUserAccountService,updateUserAvatarService,updateUserCoverImageService } from '../../services';
 
 
 const Profile = () => {
@@ -139,7 +139,7 @@ const Profile = () => {
     
     try {
       // Update account details
-      const accountResponse = await updateUserAccount({
+      const accountResponse = await updateUserAccountService({
         fullName: formData.fullName,
         email: formData.email
       });
@@ -151,7 +151,7 @@ const Profile = () => {
       
       // Update avatar if changed
       if (avatarFile) {
-        const avatarResponse = await updateUserAvatar(avatarFile);
+        const avatarResponse = await updateUserAvatarService(avatarFile);
         if (avatarResponse.success) {
           dispatch(updateUser(avatarResponse.data.user));
           showToast.success('Avatar updated successfully');
@@ -160,7 +160,7 @@ const Profile = () => {
       
       // Update cover image if changed
       if (coverImageFile) {
-        const coverResponse = await updateUserCoverImage(coverImageFile);
+        const coverResponse = await updateUserCoverImageService(coverImageFile);
         if (coverResponse.success) {
           dispatch(updateUser(coverResponse.data.user));
           showToast.success('Cover image updated successfully');

@@ -19,10 +19,10 @@ export const deleteComment = async (commentId) => {
   const response = await api.delete(`/comments/c/${commentId}`);
   return response.data;
 };
+export const commentService={
+    getVideoComments,
+    addComment,
+    updateComment,
+    deleteComment
+}
 
-export const commentService = {
-  getVideoComments,
-  addComment,
-  updateComment,
-  deleteComment
-};

@@ -148,7 +148,9 @@ export const isAuthenticatedService = () => {
 };
 
 // Default export object
-const authService = {
+
+ export const  authService = {
+
   registerService,
   loginService,
   logoutService,
@@ -161,4 +163,7 @@ const authService = {
   isAuthenticatedService
 };
 
+
+
 export default authService;
+

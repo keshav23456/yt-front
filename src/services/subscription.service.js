@@ -15,9 +15,8 @@ export const getChannelSubscribers = async (subscriberId) => {
   const response = await api.get(`/subscriptions/u/${subscriberId}`);
   return response.data;
 };
-
-export const subscriptionService = {
-  toggleSubscription,
-  getSubscribedChannels,
-  getChannelSubscribers
-};
+export const subscriptionService={
+    toggleSubscription,
+    getSubscribedChannels,
+    getChannelSubscribers
+}

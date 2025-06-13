@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 import { LOADING_STATES } from '../../utils/constants';
-import { createPlaylist,getPlaylistById,updatePlaylist,deletePlaylist,addVideoToPlaylist,removeVideoFromPlaylist,getUserPlaylists } from '../../services';
+
+import { createPlaylist,getPlaylistById,updatePlaylist,deletePlaylist,addVideoToPlaylist,removeVideoFromPlaylist,getUserPlaylists } from '../../services/playlist.service';
 
 const initialState = {
   playlists: [],
