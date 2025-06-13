@@ -148,7 +148,9 @@ export const isAuthenticatedService = () => {
 };
 
 // Default export object
+
  export const  authService = {
+
   registerService,
   loginService,
   logoutService,
@@ -160,4 +162,8 @@ export const isAuthenticatedService = () => {
   getStoredTokenService,
   isAuthenticatedService
 };
+
+
+
+export default authService;
 
